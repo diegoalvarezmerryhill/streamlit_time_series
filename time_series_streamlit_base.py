@@ -6,7 +6,7 @@ from streamlit_time_series import *
 
 st.header("Time Series Analysis")
 
-ticker = st.text_input("Please enter ticker here:")
+ticker = st.text_input("Please enter ticker here: (for S&P 500 enter ^GSPC)")
 
 status_radio = st.radio('Please click Search when you are ready.', ('Entry', 'Search'))
 
