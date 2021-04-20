@@ -7,8 +7,6 @@ from streamlit_time_series import *
 st.header("Time Series Analysis")
 
 ticker = st.text_input("Please enter ticker here:")
-if ticker == "SPX" or "spx":
-    ticker = "^GSPC"
 
 status_radio = st.radio('Please click Search when you are ready.', ('Entry', 'Search'))
 
