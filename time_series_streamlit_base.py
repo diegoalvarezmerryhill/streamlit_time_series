@@ -52,5 +52,6 @@ if status_radio == "Search":
         if time_series_options == "all":
             output = timeseries.get_all()
 
-
-    
+st.write('Disclaimer: Information and output provided on this site does \
+         not constitute investment advice.')
+st.write('Created by Diego Alvarez')
