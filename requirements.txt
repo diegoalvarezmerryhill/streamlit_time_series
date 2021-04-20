@@ -5,5 +5,5 @@ matplotlib==3.3.2
 yfinance==0.1.55
 scipy==1.5.2
 statsmodels==0.12.2
-pywt==1.1.1
+PyWavelets==1.1.1
 seaborn==0.11.0
