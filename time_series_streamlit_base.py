@@ -34,7 +34,8 @@ if frequency_box == "weekly":
     frequency = "1wk"
     
 if frequency_box == "monthly":
-    frequency = "1mo
+    frequency = "1mo"
+    
 if status_radio == "Search":
 
     df = yf.download(ticker, start_date, end_date)
