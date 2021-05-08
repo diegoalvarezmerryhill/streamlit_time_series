@@ -38,7 +38,7 @@ if frequency_box == "monthly":
     
 if status_radio == "Search":
 
-    df = yf.download(ticker, start_date, end_date)
+    df = yf.download(ticker, start_date, end_date, interval = frequency)
     df_plot = df[['Close', 'Adj Close']]
     st.line_chart(df_plot)
     st.write(df)
