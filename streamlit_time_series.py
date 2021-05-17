@@ -2,6 +2,7 @@ import pywt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import yfinance as yf
 import streamlit as st
 import statsmodels.api as sm
 
@@ -35,6 +36,8 @@ class TimeSeries:
     def get_regimes(self):
 
         #splitting the data
+        
+        company_name = yf.Ticker(self.df['ticker'][0]).info['shortName']
         
         #splitting it up 80%
         msk = np.random.rand(len(self.df)) < 0.8
@@ -104,28 +107,29 @@ class TimeSeries:
                         palette=colors, aspect=1.31, height=12)
         
         sns.despine(offset=10)
-        st.subheader("Historical {} {} regimes".format(self.df['ticker'][0], self.price_type))
+        st.subheader("Historical {} {} regimes".format(company_name, self.price_type))
         st.pyplot(fg.map(plt.scatter, 'Date', self.price_type, alpha=0.8).add_legend())
         
         st.write(fig)
         
-    def smoothed_probability(self):
+    def smoothed_probability(self, frequency):
         
         series = self.df[self.price_type].pct_change().to_frame().dropna()
+        company_name = yf.Ticker(self.df['ticker'][0]).info['shortName']
         
-        st.subheader("{} daily returns".format(self.df['ticker'][0]))
+        st.subheader("{}".format(company_name) + " {} returns".format(frequency))
         st.line_chart(series)
         
         mod_kns = sm.tsa.MarkovRegression(series, k_regimes=3, trend = 'nc', switching_variance = 'True')
         res_kns = mod_kns.fit()
         
-        st.subheader("Smoothed probability of a low-variance regime for {} returns".format(self.df['ticker'][0]))
+        st.subheader("Smoothed probability of a low-variance regime for {}".format(company_name) + " {} returns".format(frequency))
         st.line_chart(res_kns.smoothed_marginal_probabilities[0])
         
-        st.subheader("Smoothed probability of a medium-variance regime for {} returns".format(self.df['ticker'][0]))
+        st.subheader("Smoothed probability of a medium-variance regime for {}".format(company_name) + " {} returns".format(frequency))
         st.line_chart(res_kns.smoothed_marginal_probabilities[1])
         
-        st.subheader("Smoothed probability of a high-variance regime for {} returns".format(self.df['ticker'][0]))
+        st.subheader("Smoothed probability of a high-variance regime for {}".format(company_name) + " {} returns".format(frequency))
         st.line_chart(res_kns.smoothed_marginal_probabilities[2])
      
     def get_ave_values(self, xvalues, yvalues, n = 5):
@@ -377,5 +381,3 @@ class TimeSeries:
         st.pyplot(fig1)
         st.pyplot(fig2)
         st.pyplot(fig3)
-        
-        
