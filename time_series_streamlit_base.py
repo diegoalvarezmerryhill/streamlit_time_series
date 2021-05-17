@@ -49,12 +49,12 @@ if status_radio == "Search":
 
     if time_series_start == "Run":
         timeseries = TimeSeries(df, time_series_type, ticker)
-
+        
         if time_series_options == "historical regime":
             output = timeseries.get_regimes()
             
         if time_series_options == "smoothed variance probability":
-            output = timeseries.smoothed_probability()
+            output = timeseries.smoothed_probability(frequency_box)
             
         if time_series_options == "continuous wavelet transform":
             output = timeseries.cwt()
