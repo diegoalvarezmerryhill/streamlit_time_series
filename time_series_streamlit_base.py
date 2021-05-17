@@ -6,7 +6,7 @@ from streamlit_time_series import *
 
 st.header("Time Series Analysis")
 
-ticker = st.text_input("Please enter ticker here: (for S&P 500 enter ^GSPC)")
+ticker = st.text_input("Please enter ticker here: (for S&P 500 enter ^GSPC, for VIX enter ^VIX)")
 
 frequency_options = ["daily", "weekly", "monthly"]
 frequency_box = st.selectbox("select the frequency of prices (default is daily)", frequency_options)
