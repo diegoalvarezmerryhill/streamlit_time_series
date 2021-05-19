@@ -6,10 +6,12 @@ from streamlit_time_series import *
 
 st.header("Time Series Analysis")
 
-ticker = st.text_input("Please enter ticker here:")
+ticker = st.text_input("Please enter ticker here: (for S&P 500 enter ^GSPC, for VIX enter ^VIX)")
+
+frequency_options = ["daily", "weekly", "monthly"]
+frequency_box = st.selectbox("select the frequency of prices (default is daily)", frequency_options)
 
 status_radio = st.radio('Please click Search when you are ready.', ('Entry', 'Search'))
-
 options = ['historical regime', 'smoothed variance probability', 'continuous wavelet transform', 'all']
 series_type = ['Close', 'Adjusted Close']
 
@@ -24,10 +26,19 @@ if start_date < end_date:
 else:
     st.sidebar.error('Error: End date must fall after start date.')
 
+if frequency_box == "daily":
+    frequency = "1d"
+    
+if frequency_box == "weekly":
+    frequency = "1wk"
+    
+if frequency_box == "monthly":
+    frequency = "1mo"
+    
 if status_radio == "Search":
 
-    df = yf.download(ticker, start_date, end_date)
-    company_name = company_name = yf.Ticker(ticker).info['shortName']
+    df = yf.download(ticker, start_date, end_date, interval = frequency)
+    company_name = yf.Ticker(ticker).info['shortName']
     
     st.write(company_name)
     df_plot = df[['Close', 'Adj Close']]
@@ -40,12 +51,12 @@ if status_radio == "Search":
 
     if time_series_start == "Run":
         timeseries = TimeSeries(df, time_series_type, ticker)
-
+        
         if time_series_options == "historical regime":
             output = timeseries.get_regimes()
             
         if time_series_options == "smoothed variance probability":
-            output = timeseries.smoothed_probability()
+            output = timeseries.smoothed_probability(frequency_box)
             
         if time_series_options == "continuous wavelet transform":
             output = timeseries.cwt()
