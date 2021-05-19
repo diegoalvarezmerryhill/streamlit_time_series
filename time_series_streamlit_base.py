@@ -27,7 +27,7 @@ else:
 if status_radio == "Search":
 
     df = yf.download(ticker, start_date, end_date)
-    company_name = company_name = yf.Ticker(ticker).info['longName']
+    company_name = company_name = yf.Ticker(ticker).info['shortName']
     
     st.write(company_name)
     df_plot = df[['Close', 'Adj Close']]
