@@ -2,18 +2,13 @@ import yfinance as yf
 import datetime as dt
 import streamlit as st
 
+from streamlit_markov_regime import *
 from streamlit_time_series import *
 
 st.header("Time Series Analysis")
 
-ticker = st.text_input("Please enter ticker here: (for S&P 500 enter ^GSPC, for VIX enter ^VIX)")
-
-frequency_options = ["daily", "weekly", "monthly"]
-frequency_box = st.selectbox("select the frequency of prices (default is daily)", frequency_options)
-
-status_radio = st.radio('Please click Search when you are ready.', ('Entry', 'Search'))
-options = ['historical regime', 'smoothed variance probability', 'continuous wavelet transform', 'all']
-series_type = ['Close', 'Adjusted Close']
+sidebar_options = ['tools', 'expirement']
+sidebar = st.sidebar.selectbox("Select Option", sidebar_options)
 
 today = dt.date.today()
 
@@ -25,48 +20,82 @@ if start_date < end_date:
     st.sidebar.success('Start date: `%s`\n\nEnd date:`%s`' % (start_date, end_date))
 else:
     st.sidebar.error('Error: End date must fall after start date.')
-
-if frequency_box == "daily":
-    frequency = "1d"
     
-if frequency_box == "weekly":
-    frequency = "1wk"
+if sidebar == "tools":
     
-if frequency_box == "monthly":
-    frequency = "1mo"
+    ticker = st.text_input("Please enter ticker here:")
+    status_radio = st.radio('Please click Search when you are ready.', ('Entry', 'Search'))
     
-if status_radio == "Search":
+    options = ['historical regime', 'smoothed variance probability', 'continuous wavelet transform', 'all']
+    series_type = ['Close', 'Adjusted Close']
 
-    df = yf.download(ticker, start_date, end_date, interval = frequency)
-    company_name = yf.Ticker(ticker).info['shortName']
+    if status_radio == "Search":
     
-    st.write(company_name)
-    df_plot = df[['Close', 'Adj Close']]
-    st.line_chart(df_plot)
-    st.write(df)
+        df = yf.download(ticker, start_date, end_date)
+        df_plot = df[['Close', 'Adj Close']]
+        st.line_chart(df_plot)
+        st.write(df)
+    
+        time_series_type = st.radio("Please select which time series you would like", series_type)
+        time_series_options = st.selectbox("Please select what kind of analysis", options)
+        time_series_start = st.radio("Please Select Run when ready", ("Stop", "Run"))
+    
+        if time_series_start == "Run":
+            timeseries = TimeSeries(df, time_series_type, ticker)
+    
+            if time_series_options == "historical regime":
+                output = timeseries.get_regimes()
+                
+            if time_series_options == "smoothed variance probability":
+                output = timeseries.smoothed_probability()
+                
+            if time_series_options == "continuous wavelet transform":
+                output = timeseries.cwt()
+                
+            if time_series_options == "all":
+                output = timeseries.get_all()
 
-    time_series_type = st.radio("Please select which time series you would like", series_type)
-    time_series_options = st.selectbox("Please select what kind of analysis", options)
-    time_series_start = st.radio("Please Select Run when ready", ("Stop", "Run"))
-
-    if time_series_start == "Run":
-        timeseries = TimeSeries(df, time_series_type, ticker)
+if sidebar == "expirement":
+    
+    frequency_list = ['daily', 'weekly']
+    price_type_list = ['Close', 'Adj Close']
+    
+    ticker = st.text_input("Please enter ticker here:")
+    option_col1, option_col2, option_col3 = st.beta_columns(3)
+    
+    with option_col1:
+        status_radio = st.radio('Please click Search when you are ready.', ('Entry', 'Search'))
         
-        if time_series_options == "historical regime":
-            output = timeseries.get_regimes()
+    with option_col2:
+        frequency = st.selectbox("choose frequency", frequency_list)
+        
+    with option_col3:
+        price_type = st.selectbox("choose price type", price_type_list)
+    
+    options = ['historical regime', 'smoothed variance probability', 'continuous wavelet transform', 'all']
+    series_type = ['Close', 'Adjusted Close']
+
+    if status_radio == "Search":
+        
+        df = Prices(start_date, end_date, ticker, price_type, frequency).getPrices()
+        st.dataframe(df)
+        st.subheader("{} ".format(ticker) + "{} ".format(price_type) + "{} ".format(frequency) + "price")
+        st.line_chart(df)
+        
+        expirement_options = ["indicator function / volatility filtering"]
+        expirement_method = st.selectbox("select expirement", expirement_options)
+        
+        if expirement_method == "indicator function / volatility filtering":
             
-        if time_series_options == "smoothed variance probability":
-            output = timeseries.smoothed_probability(frequency_box)
+            indicator_run = st.radio("select run once ready", ("Stop", "Run"))
             
-        if time_series_options == "continuous wavelet transform":
-            output = timeseries.cwt()
-            
-        if time_series_options == "all":
-            output = timeseries.get_all()
+            if indicator_run == "Run":
+                
+                output_df = Markov(df, ticker, frequency, price_type).get_indicator()
+                st.line_chart(output_df)
+        
+        
 
 st.write('Disclaimer: Information and output provided on this site does \
          not constitute investment advice.')
 st.write('Created by Diego Alvarez')
-st.write("[GitHub](https://github.com/diegodalvarez) |", 
-         "[LinkedIn](https://www.linkedin.com/in/diegodalvarez/) |",
-         "[Medium](https://dial0663.medium.com/)")
