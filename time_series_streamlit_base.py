@@ -8,6 +8,7 @@ from streamlit_time_series import *
 st.header("Time Series Analysis")
 
 sidebar_options = ['tools', 'expirement']
+frequency_options = ["daily", "weekly", "monthly",]
 sidebar = st.sidebar.selectbox("Select Option", sidebar_options)
 
 today = dt.date.today()
@@ -23,7 +24,23 @@ else:
     
 if sidebar == "tools":
     
-    ticker = st.text_input("Please enter ticker here:")
+    search_col1, search_col2 = st.beta_columns(2)
+    
+    with search_col1:
+        ticker = st.text_input("Please enter ticker here:")
+        
+    with search_col2:
+        frequency = st.selectbox("Select Frequency", frequency_options)
+        
+        if frequency == "daily":
+            interval = "1d"
+        
+        if frequency == "weekly":
+            interval = "1wk"
+            
+        if frequency == "monthly":
+            interval = "1mo"
+    
     status_radio = st.radio('Please click Search when you are ready.', ('Entry', 'Search'))
     
     options = ['historical regime', 'smoothed variance probability', 'continuous wavelet transform', 'all']
@@ -31,7 +48,7 @@ if sidebar == "tools":
 
     if status_radio == "Search":
     
-        df = yf.download(ticker, start_date, end_date)
+        df = yf.download(ticker, start_date, end_date, interval = interval)
         df_plot = df[['Close', 'Adj Close']]
         st.line_chart(df_plot)
         st.write(df)
@@ -41,7 +58,7 @@ if sidebar == "tools":
         time_series_start = st.radio("Please Select Run when ready", ("Stop", "Run"))
     
         if time_series_start == "Run":
-            timeseries = TimeSeries(df, time_series_type, ticker)
+            timeseries = TimeSeries(df, time_series_type, ticker, frequency)
     
             if time_series_options == "historical regime":
                 output = timeseries.get_regimes()
